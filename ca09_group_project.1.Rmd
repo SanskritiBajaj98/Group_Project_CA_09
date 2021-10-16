@@ -165,40 +165,68 @@ typeof(listings$price)
 
 Next, we look at the variable `property_type`. We can use the `count` function to determine how many categories there and their frequency. What are the top 4 most common property types? What proportion of the total listings do they make up? 
 ```{r}
-proportion_of_total_listings <- listings %>%
+proportion_listing <- listings %>%
   group_by(property_type) %>%
   count() %>%
-  arrange(desc(n)) %>% 
-  
+  mutate(pct = scales::percent(n / 17703))
 
+proportion_listing %>%
+  arrange(desc(n))
 ```
 
 
 Since the vast majority of the observations in the data are one of the top four or five property types, we would like to create a simplified version of `property_type` variable that has 5 categories: the top four categories and `Other`. Fill in the code below to create `prop_type_simplified`.
 
-```
+```{r}
 listings <- listings %>%
   mutate(prop_type_simplified = case_when(
-    property_type %in% c("______","______", "______","______") ~ property_type, 
+    property_type %in% c("Entire rental unit","Private room in rental unit", "Entire condominium (condo)","Entire loft") ~ property_type, 
     TRUE ~ "Other"
   ))
-  
-```
-Use the code below to check that `prop_type_simplified` was correctly made.
 
 ```
+
+Use the code below to check that `prop_type_simplified` was correctly made.
+
+       
+```{r}
 listings %>%
   count(property_type, prop_type_simplified) %>%
-  arrange(desc(n))        
-```        
+  arrange(desc(n))    
+```
+
 
 Airbnb is most commonly used for travel purposes, i.e., as an alternative to traditional hotels. We only want to include  listings in our regression analysis that are intended for travel purposes:
 
 - What are the  most common values for the variable `minimum_nights`? 
-- Is ther any value among the common values that stands out? 
+The minimum nights that the Airbnb reported the most usually lies between 1 and 3.
+
+```{r}
+nights_listing <- listings %>%
+  group_by(minimum_nights) %>%
+  count() %>%
+  mutate(pct = scales::percent(n / 17703))
+
+nights_listing %>%
+  arrange(desc(n))
+```
+
+- Is their any value among the common values that stands out? 
+The number of people who stay at least 30 days at Airbnb actually stands out from other long-term duration (by long-term, I mean >= 7 minimum nights). One of the possible explanations is that Airbnb would give customers discount by staying 30 days.
+
 - What is the likely intended purpose for Airbnb listings with this seemingly unusual value for `minimum_nights`?
+Airbnb wants them to stay longer; in that way, the capacity of the property can be increased, reducing the business risk. 
 
 Filter the airbnb data so that it only includes observations with `minimum_nights <= 4`
+```{r}
+listings_4nights <- listings %>%
+  filter(minimum_nights <= 4)
+
+#Check if we have derived the dataset that included minimum_nights <= 4 only
+listings_4nights %>%
+  group_by(minimum_nights) %>%
+  count()
+```
 
         
 # Mapping 
