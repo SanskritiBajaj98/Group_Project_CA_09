@@ -39,7 +39,6 @@ library(leaflet) # for interactive HTML maps
 library(tidytext)
 library(viridis)
 library(vroom)
-library(ggcorrplot)
 ```
 
 
@@ -105,24 +104,6 @@ Conduct a thorough EDA. Recall that an EDA involves three things:
         
 You may wish to have a level 1 header (`#`) for your EDA, then use level 2 sub-headers (`##`) to make sure you cover all three EDA bases. **At a minimum** you should address these questions:
 
-#Exploratory Data Analysis for Airbnb properties in Milan
-
-##Let's look at the raw data
-
-```{r}
-glimpse(listings)
-
-```
-
-## Let's take a closer look
-
-```{r}
-skim(listings)
-
-favstats(price ~ bedrooms, data=listings)
-```
-## Description... REMEMBER TO CHANGE IT 
-
 - How many variables/columns? How many rows/observations?
 > 74 variables, 17,703 observations. 
 
@@ -142,115 +123,14 @@ listings %>%
 
 ```
 
-##CREATE SOME GRAPHS
 
-###We create a barchart of the number of bedrooms, but we remove the outliers, so the properties that have more than 5 bedrooms.
-```{r}
-listings %>% 
-  filter(bedrooms<=5) %>% 
-  ggplot(aes(x=bedrooms))+
-  geom_bar()+
-  labs(title="Number of Airbnb properties in Milan grouped by bedrooms", x="Bedrooms",y="Number of properties")+
-  NULL
-```
-###We create a histogram to understand the distribution of the average reviews for properties in Milan. As we can see from the graph, the vast majority of properties have ratings above 4. 
-```{r}
-listings %>% 
-  ggplot(aes(x=review_scores_rating))+
-  geom_histogram()+
-  labs(title="Distribution of ratings per Airbnb property in Milan", x="Ratings",y="Number of properties")+
-  NULL
-```
-
-###We create a box plot to understand the distribution of the number of ratings per Airbnb property. We filter out the data and only analyze properties that have more than 100 reviews so to remove the properties that haven't been long enough on the "market" and hence haven't been used a lot.
-```{r}
-listings %>%
-  filter(number_of_reviews>=100) %>% 
-  ggplot(aes(x=number_of_reviews))+
-  geom_boxplot()+
-  labs(title="Boxplot of the number of reviews per Airbnb property in Milan", x="Number of Reviews")+
-  NULL
-
-```
-
-###We create a density plot to understand the distribution of price per Airbnb property. We filter out the data and only analyze properties that have a price per night of less than 300 so to remove the outliers made by the properties that can be considered as "luxury" or that has a lot of bedroom, and hence are too big.
-```{r}
-#Changing price from str to numeric data type 
-listings <- listings %>% 
-  mutate(price = parse_number(as.character(price)))
-
-listings %>%
-  filter(price<=300) %>% 
-  ggplot(aes(x=price))+
-  geom_density()+
-  labs(title="Distribution of the price per night per Airbnb property in Milan", x="Price per night",y="Density")+
-  NULL
-
-```
 
 - What are the correlations between variables? Does each scatterplot support a linear relationship between variables? Do any of the correlations appear to be conditional on the value of a categorical variable?
 
-```{r}
-listings %>% #Correlation between availability and price
-  select(where(is.numeric)) %>% 
-  select(price, availability_30,availability_60,availability_90,availability_365) %>% 
-  ggpairs(aes(alpha=0.2))+
-  theme_bw()
-```
-> As per the graph the correlation between availability and price is not significantly high. This highlights that availablity of rooms does not affect the price. 
-
-```{r}
-listings %>% #Correlation between review and price 
-  select(price, bedrooms,beds,review_scores_rating,review_scores_accuracy, review_scores_cleanliness,review_scores_checkin,
-         review_scores_communication,review_scores_location,review_scores_value ) %>% 
-  ggpairs(aes(alpha=0.2))+
-  theme_bw()
-```
-> As per the graph the correlation between ratings and price is not significantly high. This highlights that potentially lowered priced rooms receive a high rating, this signifies that customers care about value for money. There exists a significant correlation between the number of beds and price.
-
 At this stage, you may also find you want to use `filter`, `mutate`, `arrange`, `select`, or `count`. Let your questions lead you! 
 ```{r}
-listings %>%
-  group_by(prop_type_simplified) %>%
-  summarise(avg_price = mean(price)) %>%
-  ggplot(aes(x = prop_type_simplified, y = avg_price)) +
-  geom_col() +
-  labs(title = "Average Property Price of Different Property Types", 
-       x = "Property Type",
-       y = "Average Price Per Night") 
+glimpse(listings) 
 ```
-> The barchart shown above implies that the entire loft would have the highest average price among all the property type, while private room in rental unit ranked the lowest. That makes sense to me since loft tends to have modern furniture than traditional type of building especially in European historic old cities like Milan. Also, loft is more spacious than other types, based on the personal experience of Francesco (our Italian group member). In addition, private room needs to share the living room with other tenants, which would reduce the comfortness of customers.
-
-```{r}
-listings %>%
-  group_by(room_type) %>%
-  summarise(avg_price = mean(price)) %>%
-  ggplot(aes(x = room_type, y = avg_price)) +
-  geom_col() +
-  labs(title = "Average Property Price of Different Room Types", 
-       x = "Room Type",
-       y = "Average Price Per Night") 
-```
-> The barchart shown above implies that the hotel room has a much higher average price than any other room type, since customers need to pay for the premium of cleaning, security, free breakfast etc. In comparison, shared room has the lowest average price among all types, since the space needs to be shared with someone else. 
-
-```{r}
-listings %>%
-  group_by(neighbourhood_cleansed) %>%
-  summarise(avg_price = mean(price)) %>%
-  ggplot(aes(x = avg_price, y = neighbourhood_cleansed)) +
-  geom_col() +
-  labs(title = "Average Property Price of Different Neighbourhoods", 
-       x = "Neighbour",
-       y = "Average Price Per Night") 
-```
-> Tre Torri has the highest average property price among all the neighbors. Tre Torri is located in the centre of the three towers, which can serve a substantial number of employees working in high-caliber companies. The facilities in this area is extremely modern, with only 14 years of history after groundbreaking, accompanied with a lot of parks for entertainment. Ronchetto delle Rane, on the other hand, has the lowest average property price, since it's located in suburb of Milan with outdated facilities.Tre Torri has the highest average property price among all the neighbors. Tre Torri is located in the centre of the three towers, which can serve a substantial number of employees working in high-caliber companies. The facilities in this area is extremely modern, with only 14 years of history after groundbreaking, accompanied with a lot of parks for entertainment. Ronchetto delle Rane, on the other hand, has the lowest average property price, since it's located in suburb of Milan with outdated facilities.
-
-```{r}
-correlation_matrix_data_1 <- listings %>% 
-  select(price,bedrooms, accommodates)
-corr <- round(cor(correlation_matrix_data_1), 1)
-ggcorrplot(corr)  
-``` 
 
 
 
@@ -270,7 +150,9 @@ Since `price` is a quantitative variable, we need to make sure it is stored as n
 #Changing price from str to numeric data type 
 listings <- listings %>% 
   mutate(price = parse_number(as.character(price)))
+glimpse(listings)
 ```
+
 
   
 Use `typeof(listing$price)` to confirm that `price` is now stored as a number.
@@ -278,84 +160,45 @@ Use `typeof(listing$price)` to confirm that `price` is now stored as a number.
 typeof(listings$price)
 ```
 
+
 ## Propery types
 
 Next, we look at the variable `property_type`. We can use the `count` function to determine how many categories there and their frequency. What are the top 4 most common property types? What proportion of the total listings do they make up? 
 ```{r}
-proportion_listing <- listings %>%
+proportion_of_total_listings <- listings %>%
   group_by(property_type) %>%
   count() %>%
-  mutate(pct = scales::percent(n / 17703))
+  arrange(desc(n)) %>% 
+  
 
-proportion_listing %>%
-  arrange(desc(n))
 ```
 
 
 Since the vast majority of the observations in the data are one of the top four or five property types, we would like to create a simplified version of `property_type` variable that has 5 categories: the top four categories and `Other`. Fill in the code below to create `prop_type_simplified`.
 
-```{r}
+```
 listings <- listings %>%
   mutate(prop_type_simplified = case_when(
-    property_type %in% c("Entire rental unit","Private room in rental unit", "Entire condominium (condo)","Entire loft") ~ property_type, 
+    property_type %in% c("______","______", "______","______") ~ property_type, 
     TRUE ~ "Other"
   ))
-
+  
 ```
-
 Use the code below to check that `prop_type_simplified` was correctly made.
 
-       
-```{r}
+```
 listings %>%
   count(property_type, prop_type_simplified) %>%
-  arrange(desc(n)) 
-
-```
-
+  arrange(desc(n))        
+```        
 
 Airbnb is most commonly used for travel purposes, i.e., as an alternative to traditional hotels. We only want to include  listings in our regression analysis that are intended for travel purposes:
 
 - What are the  most common values for the variable `minimum_nights`? 
-The minimum nights that the Airbnb reported the most usually lies between 1 and 3.
-
-```{r}
-nights_listing <- listings %>%
-  group_by(minimum_nights) %>%
-  count() %>%
-  mutate(pct = scales::percent(n / 17703))
-
-nights_listing %>%
-  arrange(desc(n))
-```
-
-- Is their any value among the common values that stands out? And what is the likely intended purpose for Airbnb listings with this seemingly unusual value for `minimum_nights`?
-
-The number of minimum nights that stands out is 30 days. A possible explanation is that the host prefers long term lettings. Furthermore, Airbnb wants them to stay longer; in that way, the capacity of the property can be increased, reducing the business risk. Another stand out duration of stay is the minimum of 7 nights, which is above a minimum of 6 nights, encouraging people to stay one entire week benefiting the host to reduce hassle. 
-
-
+- Is ther any value among the common values that stands out? 
+- What is the likely intended purpose for Airbnb listings with this seemingly unusual value for `minimum_nights`?
 
 Filter the airbnb data so that it only includes observations with `minimum_nights <= 4`
-```{r}
-listings_4nights <- listings %>%
-  filter(minimum_nights <= 4)
-
-#Check if we have derived the dataset that included minimum_nights <= 4 only
-listings_4nights %>%
-  group_by(minimum_nights) %>%
-  count()
-
-listings %>% 
-  filter(minimum_nights <= 4) %>% 
-  ggplot(aes(x=minimum_nights))+
-  geom_bar()+
-  labs(title="Number of properties in Milan grouped by minimum nights", 
-       subtitle="We only consider properties that have 4 or fewer minimum nights", 
-       x="Minimum nights",
-       y="Number of properties")+
-  NULL
-```
-
 
         
 # Mapping 
@@ -393,11 +236,6 @@ Fit a regression model called `model1` with the following explanatory variables:
 - Interpret the coefficient of `prop_type_simplified` in terms of `price_4_nights`.
 
 We want to determine if `room_type` is a significant predictor of the cost for 4 nights, given everything else in the model. Fit a regression model called model2 that includes all of the explananatory variables in `model1` plus `room_type`. 
-
-
-```{r}
-
-```
 
 
 
