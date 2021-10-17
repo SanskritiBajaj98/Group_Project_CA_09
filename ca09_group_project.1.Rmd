@@ -133,7 +133,6 @@ glimpse(listings)
 ```
 
 
-
 > In all cases, please think about the message your plot is conveying. Don’t just say "This is my X-axis, this is my Y-axis", but rather what’s the **so what** of the plot. Tell some sort of story and speculate about the differences in the patterns in no more than a paragraph.
 
 
