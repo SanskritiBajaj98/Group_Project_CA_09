@@ -129,8 +129,13 @@ listings %>%
 ###We create a density plot to understand the distribution of price per Airbnb property. We filter out the data and only analyze properties that have a price per night of less than 300 so to remove the outliers made by the properties that can be considered as "luxury" or that has a lot of bedroom, and hence are too big.
 ```{r}
 #Changing price from str to numeric data type 
-listings <- listings %>% 
-  mutate(price = parse_number(as.character(price)))
+listings <- listings %>% #Changing price from str to numeric data type
+  mutate(price = parse_number(as.character(price))) %>% 
+  mutate(neighbourhood_simplified = ifelse(longitude <= 9.17279 & latitude <= 45.462395, "Southwest", 
+         ifelse(longitude <= 9.17279 & latitude > 45.462395, "Northwest",
+         ifelse(longitude > 9.17279 & latitude <= 45.462395, "Southeast", "Northeast"))))
+glimpse(listings)
+
 
 listings %>%
   filter(price<=300) %>% 
@@ -605,7 +610,8 @@ filtered_dataset <- listings %>%
 filtered_dataset
 model_predictions <- broom::augment(model8, 
                              newdata = filtered_dataset)
-model_prediction
+
+model_predictions
 
 ```
 

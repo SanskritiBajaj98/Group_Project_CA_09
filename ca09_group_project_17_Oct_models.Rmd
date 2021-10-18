@@ -347,6 +347,7 @@ ggplot(data=listings_4_nights_2_people, aes(x= log(price_4_nights))) +
   theme_bw()
 
 ```
+
 Fit a regression model called `model1` with the following explanatory variables: `prop_type_simplified`, `number_of_reviews`, and `review_scores_rating`. 
 ```{r}
 log_listings_4_nights_2_people <-  listings_4_nights_2_people %>%  #Model 1 - Type of listing
