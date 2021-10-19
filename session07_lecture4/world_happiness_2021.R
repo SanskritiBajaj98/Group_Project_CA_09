@@ -82,3 +82,4 @@ huxreg(model1, model2, model3, model4,model5,
 car::vif(model3)
 car::vif(model4)
 car::vif(model5)
+

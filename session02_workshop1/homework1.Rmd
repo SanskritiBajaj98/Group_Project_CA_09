@@ -57,46 +57,72 @@ data(drinks)
 
 
 # or download directly
-# alcohol_direct <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/alcohol-consumption/drinks.csv")
+#alcohol_direct <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/alcohol-consumption/drinks.csv")
 
 ```
 
 
 What are the variable types? Any missing values we should worry about? 
+Variable types - 
+Country - Character 
+Beer_Servings - Integer 
+Spirit_Servings -  Integer 
+Wine_Servings - Integer 
+total_litres_of_pure_alcohol - Decimal 
 
+No missing values found 
 ```{r glimpse_skim_data}
-# YOUR CODE GOES HERE
-
-
+glimpse(drinks)
+which(is.na(drinks))
 ```
 
 
 Make a plot that shows the top 25 beer consuming countries
 
 ```{r beer_plot}
-# YOUR CODE GOES HERE
-
+top_25_beer_consuming <-  drinks %>% 
+  arrange(desc(beer_servings)) %>%
+  head(25)
+  
+ggplot(top_25_beer_consuming, aes(x=beer_servings, y=fct_reorder(country, beer_servings))) +
+  ggtitle ('Top 25 beer serving countries') +
+  labs(title = 'Top 25 beer consuming countries', x = 'Beer servings', y = 'Country') +
+  geom_col()
 
 ```
 
 Make a plot that shows the top 25 wine consuming countries
 
 ```{r wine_plot}
-
-# YOUR CODE GOES HERE
-
+top_25_wine_consuming <-  drinks %>% 
+  arrange(desc(wine_servings)) %>%
+  head(25)
+  
+ggplot(top_25_wine_consuming, aes(x=wine_servings, y=fct_reorder(country, wine_servings))) +
+  ggtitle ('Top 25 wine serving countries') +
+  labs(title = 'Top 25 wine consuming countries', x = 'Wine Serving', y = 'Country') +
+  geom_col()
 
 ```
 
 Finally, make a plot that shows the top 25 spirit consuming countries
 ```{r spirit_plot}
-# YOUR CODE GOES HERE
 
+top_25_spirit_consuming <-  drinks %>% 
+  arrange(desc(spirit_servings)) %>%
+  head(25)
+  
+ggplot(top_25_spirit_consuming, aes(x=spirit_servings, y=fct_reorder(country, spirit_servings))) +
+  ggtitle ('Top 25 spirit serving countries') +
+  labs(title = 'Top 25 spirit consuming countries', x = 'Spirit Serving', y = 'Country') +
+  geom_col()
+  
 ```
 
 What can you infer from these plots? Don't just explain what's in the graph, but speculate or tell a short story (1-2 paragraphs max).
 
-> TYPE YOUR ANSWER AFTER (AND OUTSIDE!) THIS BLOCKQUOTE.
+> 
+
 
 # Analysis of movies- IMDB dataset
 
@@ -122,10 +148,43 @@ Besides the obvious variables of `title`, `genre`, `director`, `year`, and `dura
 ## Use your data import, inspection, and cleaning skills to answer the following:
 
 - Are there any missing values (NAs)? Are all entries distinct or are there duplicate entries?
+  There are no missing values. There are duplicate titles, as there are 54 non-unique rows. 
+```{r, missing_value}
+   which(is.na(movies))
+   length(unique(movies$title))
+```
+
 - Produce a table with the count of movies by genre, ranked in descending order
+```{r, movie_count}
+movie_by_genre <- movies %>%
+  select(genre) %>%
+  count(genre) 
+  
+movie_by_genre %>%
+  arrange(desc(n))
+
+
+```
+
 - Produce a table with the average gross earning and budget (`gross` and `budget`) by genre. Calculate a variable `return_on_budget` which shows how many $ did a movie make at the box office for each $ of its budget. Ranked genres by this `return_on_budget` in descending order
+```{r, gross_budget_by_genre}
+movies %>%
+  group_by(genre) %>%
+  summarize(mean)
+   
+   mutate(movies = fct_reorder(genre, gross, mean)) %>%
+```
+
 - Produce a table that shows the top 15 directors who have created the highest gross revenue in the box office. Don't just show the total gross amount, but also the mean, median, and standard deviation per director.
 - Finally, ratings. Produce a table that describes how ratings are distributed by genre. We don't want just the mean, but also, min, max, median, SD and some kind of a histogram or density graph that visually shows how ratings are distributed. 
+``
+```{r}
+```
+
+```
+
+```
+
 
 ## Use `ggplot` to answer the following
 
